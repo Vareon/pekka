@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "411398949547",
+    "firebase_url": "https://pekka1-2bc35-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "pekka1-2bc35",
+    "storage_bucket": "pekka1-2bc35.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:411398949547:android:a7653bafed9b4b6a1545ee",
+        "android_client_info": {
+          "package_name": "com.example.pekka62"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxwTttEHQArSMAbzSmSHT3ocSKufXWVNY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
