@@ -1,6 +1,6 @@
 # pekka62
 
-A new Flutter project.
+Prototype camera application 
 
 ## Getting Started
 
