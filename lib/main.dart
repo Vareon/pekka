@@ -16,6 +16,7 @@ Future<void> main() async {
     MaterialApp(
       theme: ThemeData.dark(),
       home: CameraScreen(camera: firstCamera),
+      debugShowCheckedModeBanner: false,
     ),
   );
 }
