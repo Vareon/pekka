@@ -6,6 +6,9 @@ import 'package:video_player/video_player.dart';
 import 'dart:io';
 import 'gallery_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:gallery_saver/gallery_saver.dart';
+
 
 class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
@@ -26,6 +29,7 @@ class CameraScreenState extends State<CameraScreen> {
   void initState() {
     super.initState();
     _initializeCamera();
+    _checkConnectivityAndUpload();
   }
 
   Future<void> _initializeCamera() async {
@@ -86,6 +90,27 @@ class CameraScreenState extends State<CameraScreen> {
       ));
     }
   }
+  Future<void> _checkConnectivityAndUpload() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      final directory = await getExternalStorageDirectory();
+      final pekkaDir = Directory('${directory!.path}/Pekka');
+      final files = pekkaDir.listSync().whereType<File>().toList();
+
+      for (var file in files) {
+        final fileName = file.path.split('/').last;
+        final fileType = fileName.split('.').last;
+        await uploadFileToFirebase(file.path, fileName.split('.').first, fileType);
+      }
+    }
+  }
+  Future<void> saveFileToGallery(String filePath, String fileType) async {
+    if (fileType == 'jpg' || fileType == 'jpeg' || fileType == 'png') {
+      await GallerySaver.saveImage(filePath);
+    } else if (fileType == 'mp4') {
+      await GallerySaver.saveVideo(filePath);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +139,9 @@ class CameraScreenState extends State<CameraScreen> {
                   final path = await getCustomFilePath('photo_${DateTime.now().millisecondsSinceEpoch}', 'jpg');
                   final XFile picture = await _controller.takePicture();
                   await picture.saveTo(path);
+                  await saveFileToGallery(path, 'jpg');
                   await uploadFileToFirebase(path, 'photo_${DateTime.now().millisecondsSinceEpoch}', 'jpg');
+
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Text('Picture saved to $path'),
                   ));
@@ -135,12 +162,10 @@ class CameraScreenState extends State<CameraScreen> {
                     });
                     final path = await getCustomFilePath('video_${DateTime.now().millisecondsSinceEpoch}', 'mp4');
                     await videoFile.saveTo(path);
+                    await saveFileToGallery(path, 'mp4');
                     await uploadFileToFirebase(path, 'video_${DateTime.now().millisecondsSinceEpoch}', 'mp4');
-                    _videoController = VideoPlayerController.file(File(path))
-                      ..initialize().then((_) {
-                        setState(() {});
-                        _videoController.play();
-                      });
+
+
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Video saved to $path'),
                     ));
