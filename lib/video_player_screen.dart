@@ -26,7 +26,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 
   @override
   void dispose() {
-    _controller.pause();
     _controller.dispose();
     super.dispose();
   }
@@ -34,7 +33,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Video Player')),
+      appBar: AppBar(title: Text('Video Preview')),
       body: Center(
         child: _controller.value.isInitialized
             ? AspectRatio(
@@ -46,7 +45,11 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            _controller.value.isPlaying ? _controller.pause() : _controller.play();
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              _controller.play();
+            }
           });
         },
         child: Icon(

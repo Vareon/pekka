@@ -1,20 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:video_player/video_player.dart';
-import 'dart:io';
-import 'gallery_screen.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:gallery_saver/gallery_saver.dart';
-
+import 'dart:io';
+import 'gallery_screen.dart';
 
 class CameraScreen extends StatefulWidget {
-  final CameraDescription camera;
-
-  const CameraScreen({Key? key, required this.camera}) : super(key: key);
-
   @override
   CameraScreenState createState() => CameraScreenState();
 }
@@ -23,7 +16,6 @@ class CameraScreenState extends State<CameraScreen> {
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   bool isRecording = false;
-  late VideoPlayerController _videoController;
 
   @override
   void initState() {
@@ -33,18 +25,16 @@ class CameraScreenState extends State<CameraScreen> {
   }
 
   Future<void> _initializeCamera() async {
-    final status = await Permission.camera.request();
-    if (status.isGranted) {
-      _controller = CameraController(
-        widget.camera,
-        ResolutionPreset.high,
-      );
+    final cameras = await availableCameras();
+    final firstCamera = cameras.first;
 
-      _initializeControllerFuture = _controller.initialize();
-      setState(() {});
-    } else {
-      // Handle permission denied
-    }
+    _controller = CameraController(
+      firstCamera,
+      ResolutionPreset.high,
+    );
+
+    _initializeControllerFuture = _controller.initialize();
+    setState(() {});
   }
 
   @override
@@ -53,24 +43,19 @@ class CameraScreenState extends State<CameraScreen> {
     super.dispose();
   }
 
-  Future<void> requestPermissions() async {
-    if (await Permission.storage.request().isGranted) {
-      print('Storage permission granted');
-    } else {
-      print('Storage permission denied');
+  Future<void> _checkConnectivityAndUpload() async {
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      final directory = await getExternalStorageDirectory();
+      final pekkaDir = Directory('${directory!.path}/Pekka');
+      final files = pekkaDir.listSync().whereType<File>().toList();
+
+      for (var file in files) {
+        final fileName = file.path.split('/').last;
+        final fileType = fileName.split('.').last;
+        await uploadFileToFirebase(file.path, fileName.split('.').first, fileType);
+      }
     }
-  }
-
-  Future<String> getCustomFilePath(String fileName, String type) async {
-    final directory = await getExternalStorageDirectory();
-    final path = '${directory!.path}/Pekka';
-    final pekkaDir = Directory(path);
-
-    if (!(await pekkaDir.exists())) {
-      await pekkaDir.create(recursive: true);
-    }
-
-    return '$path/$fileName.$type';
   }
 
   Future<void> uploadFileToFirebase(String filePath, String fileName, String type) async {
@@ -90,20 +75,7 @@ class CameraScreenState extends State<CameraScreen> {
       ));
     }
   }
-  Future<void> _checkConnectivityAndUpload() async {
-    var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
-      final directory = await getExternalStorageDirectory();
-      final pekkaDir = Directory('${directory!.path}/Pekka');
-      final files = pekkaDir.listSync().whereType<File>().toList();
 
-      for (var file in files) {
-        final fileName = file.path.split('/').last;
-        final fileType = fileName.split('.').last;
-        await uploadFileToFirebase(file.path, fileName.split('.').first, fileType);
-      }
-    }
-  }
   Future<void> saveFileToGallery(String filePath, String fileType) async {
     if (fileType == 'jpg' || fileType == 'jpeg' || fileType == 'png') {
       await GallerySaver.saveImage(filePath);
@@ -112,10 +84,22 @@ class CameraScreenState extends State<CameraScreen> {
     }
   }
 
+  Future<String> getCustomFilePath(String fileName, String type) async {
+    final directory = await getExternalStorageDirectory();
+    final path = '${directory!.path}/Pekka';
+    final pekkaDir = Directory(path);
+
+    if (!(await pekkaDir.exists())) {
+      await pekkaDir.create(recursive: true);
+    }
+
+    return '$path/$fileName.$type';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Pekka')),
+      appBar: AppBar(title: Text('Dahili kamera')),
       body: FutureBuilder<void>(
         future: _initializeControllerFuture,
         builder: (context, snapshot) {
@@ -164,7 +148,6 @@ class CameraScreenState extends State<CameraScreen> {
                     await videoFile.saveTo(path);
                     await saveFileToGallery(path, 'mp4');
                     await uploadFileToFirebase(path, 'video_${DateTime.now().millisecondsSinceEpoch}', 'mp4');
-
 
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text('Video saved to $path'),

@@ -45,6 +45,9 @@ dependencies:
   firebase_storage: ^12.0.1
   connectivity_plus: ^6.0.3
   gallery_saver: ^2.3.2
+  ffmpeg_kit_flutter: ^6.0.3
+  flutter_webrtc: ^0.11.1
+  web_socket_channel: ^3.0.0
 
 
   # The following adds the Cupertino Icons font to your application.
