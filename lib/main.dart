@@ -1,7 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pekka62/web_socket_frame_screen.dart';
 import 'camera_screen.dart';
-import 'stream_screen.dart';
+//import 'stream_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
@@ -74,7 +75,7 @@ class HomeScreen extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => StreamScreen(cameraUrl: 'https://192.168.79.87',),
+                    builder: (context) => VideoStream(),
                   ),
                 );
               },
