@@ -141,7 +141,7 @@ class _VideoStreamState extends State<VideoStream> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Live Video"),
+        title: const Text("Canlı Video"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -153,11 +153,11 @@ class _VideoStreamState extends State<VideoStream> {
                 children: [
                   ElevatedButton(
                     onPressed: () => connect(context),
-                    child: const Text("Connect"),
+                    child: const Text("Bağlan"),
                   ),
                   ElevatedButton(
                     onPressed: disconnect,
-                    child: const Text("Disconnect"),
+                    child: const Text("Bağlantıyı kes"),
                   ),
                 ],
               ),
@@ -174,7 +174,7 @@ class _VideoStreamState extends State<VideoStream> {
 
                   if (snapshot.connectionState == ConnectionState.done) {
                     return const Center(
-                      child: Text("Connection Closed !"),
+                      child: Text("Bağlantı kapandı !"),
                     );
                   }
                   _currentFrame = Uint8List.fromList(base64Decode(snapshot.data.toString()));
@@ -188,7 +188,7 @@ class _VideoStreamState extends State<VideoStream> {
                   );
                 },
               )
-                  : const Text("Initiate Connection"),
+                  : const Text("Bağlantı Bekleniyor"),
               const Spacer(),
               Padding(
                 padding: const EdgeInsets.all(8.0),
