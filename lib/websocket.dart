@@ -42,4 +42,7 @@ class WebSocket {
       _channel!.sink.close(status.goingAway);
     }
   }
+  void close() {
+    streamController.close();
+  }
 }

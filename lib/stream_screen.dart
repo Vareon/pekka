@@ -1,3 +1,5 @@
+// this folder is not used in this project
+/*
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:path_provider/path_provider.dart';
@@ -229,3 +231,4 @@ class _StreamScreenState extends State<StreamScreen> {
     );
   }
 }
+*/
